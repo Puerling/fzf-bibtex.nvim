@@ -302,6 +302,7 @@ end
 local actions = {
   insert_key = function(opts)
     local format_string = parse_format_string(opts)
+    local mode = vim.api.nvim_get_mode().mode
     return {
       fn = function(selected)
         if #selected == 0 then
@@ -331,7 +332,6 @@ local actions = {
             )
           end
         end
-        local mode = vim.api.nvim_get_mode().mode
         if mode == 'i' then
           vim.api.nvim_put({ text }, '', false, true)
           vim.api.nvim_feedkeys('a', 'n', true)
@@ -345,6 +345,7 @@ local actions = {
   end,
 
   insert_citation = function(opts)
+    local mode = vim.api.nvim_get_mode().mode
     return {
       fn = function(selected)
         if #selected == 0 then
@@ -363,7 +364,6 @@ local actions = {
             )
           )
         end
-        local mode = vim.api.nvim_get_mode().mode
         if mode == 'i' then
           vim.api.nvim_put(citations, '', false, true)
           vim.api.nvim_feedkeys('a', 'n', true)
@@ -376,27 +376,29 @@ local actions = {
     }
   end,
 
-  insert_entry = {
-    fn = function(selected)
-      if #selected == 0 then
-        return
-      end
-      local text = {}
-      for _, item in ipairs(selected) do
-        local key = vim.split(item, delimiter)[2]
-        text = vim.list_extend(text, entries[key].content)
-      end
-      local mode = vim.api.nvim_get_mode().mode
-      if mode == 'i' then
-        vim.api.nvim_put(text, '', false, true)
-        vim.api.nvim_feedkeys('a', 'n', true)
-      else
-        vim.api.nvim_put(text, '', true, true)
-      end
-    end,
-    desc = 'insert-entry',
-    header = 'Insert entry',
-  },
+  insert_entry = function(opts)
+    local mode = vim.api.nvim_get_mode().mode
+    return {
+      fn = function(selected)
+        if #selected == 0 then
+          return
+        end
+        local text = {}
+        for _, item in ipairs(selected) do
+          local key = vim.split(item, delimiter)[2]
+          text = vim.list_extend(text, entries[key].content)
+        end
+        if mode == 'i' then
+          vim.api.nvim_put(text, '', false, true)
+          vim.api.nvim_feedkeys('a', 'n', true)
+        else
+          vim.api.nvim_put(text, '', true, true)
+        end
+      end,
+      desc = 'insert-entry',
+      header = 'Insert entry',
+    }
+  end,
 
   manage_fields = {
     fn = function()
