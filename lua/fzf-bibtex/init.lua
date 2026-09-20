@@ -224,6 +224,14 @@ local function get_entries(opts)
   if context and (not context_fallback or next(context_files)) then
     current_files = context_files
   end
+  if opts.additional_files then
+    for _, name in ipairs(opts.additional_files) do
+      table.insert(
+        current_files,
+        { name = vim.fn.expand(name), mtime = 0, entries = {} }
+      )
+    end
+  end
   for _, file in pairs(current_files) do
     local mtime = loop.fs_stat(file.name).mtime.sec
     if mtime ~= file.mtime then
